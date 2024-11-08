@@ -85,6 +85,11 @@ jobs:
           # Ensure the Elastic Beanstalk CLI is installed
           pip install --upgrade awsebcli
           
-          # Initialize EB CLI and deploy
-          eb init my-app --platform java --region $AWS_REGION
-          eb deploy
+          # Initialize EB CLI and capture output
+          eb init my-app --platform java --region $AWS_REGION || exit 1
+
+          #Debug: list environments
+          eb list --region $AWS_REGION
+
+          #Deploy to Elastic Beanstalk and capture any errors
+          eb deploy || exit 1
