@@ -73,7 +73,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '11'
-          distribution: 'termurin'
+          distribution: 'temurin'
 
       # Step 3: Deploy to AWS Elastic Beanstalk
       - name: Deploy to AWS Elastic Beanstalk
