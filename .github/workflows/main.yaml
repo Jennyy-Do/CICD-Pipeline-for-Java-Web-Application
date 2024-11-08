@@ -1,0 +1,78 @@
+name: CI/CD Pipeline for Java Web Application
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Step 2: Set up Java environment
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'  # Specify the Java version used by your project
+
+      # Step 3: Cache Maven dependencies
+      - name: Cache Maven packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      # Step 4: Build and test the application
+      - name: Build and test with Maven
+        run: mvn clean verify
+
+      # Step 5: Package application into a WAR file
+      - name: Package application
+        run: mvn package -DskipTests
+
+      # Step 6: Upload the WAR file as an artifact (optional)
+      - name: Upload WAR artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: app.war
+          path: target/*.war
+
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      # Step 1: Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Step 2: Set up Java environment
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+
+      # Step 3: Deploy to AWS Elastic Beanstalk
+      - name: Deploy to AWS Elastic Beanstalk
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: 'us-west-2'
+        run: |
+          # Ensure the Elastic Beanstalk CLI is installed
+          pip install --upgrade awsebcli
+          
+          # Initialize EB CLI and deploy
+          eb init my-app --platform java --region $AWS_REGION
+          eb deploy
