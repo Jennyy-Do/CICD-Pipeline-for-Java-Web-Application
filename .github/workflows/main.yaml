@@ -34,7 +34,7 @@ jobs:
   
       # Step 5: Cache Maven dependencies
       - name: Cache Maven packages
-        uses: actions/cache@4
+        uses: actions/cache@3
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
