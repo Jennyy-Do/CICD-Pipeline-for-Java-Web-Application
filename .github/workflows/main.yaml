@@ -15,17 +15,17 @@ jobs:
     steps:
       # Step 1: Checkout the code from the repository
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       # Step 2: Set up Java environment
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          java-version: '11'  # Specify the Java version used by your project
-
+          java-version: '11'
+          distribution: 'temurin'
       # Step 3: Cache Maven dependencies
       - name: Cache Maven packages
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -55,7 +55,7 @@ jobs:
     steps:
       # Step 1: Checkout code
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       # Step 2: Set up Java environment
       - name: Set up JDK
