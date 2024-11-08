@@ -86,10 +86,10 @@ jobs:
           pip install --upgrade awsebcli
           
           # Initialize EB CLI and capture output
-          eb init my-app --platform java --region $AWS_REGION || exit 1
+          eb init my-app --platform java --region $AWS_REGION --debug || exit 1
 
-          #Debug: list environments
-          eb list --region $AWS_REGION
+          # Debug: list environments
+          eb list --region $AWS_REGION --debug
 
           #Deploy to Elastic Beanstalk and capture any errors
-          eb deploy || exit 1
+          eb deploy --debug || exit 1
