@@ -89,7 +89,7 @@ jobs:
           eb init my-app --platform java --region $AWS_REGION --debug || exit 1
 
           # Debug: list environments
-          eb list --region $AWS_REGION --debug
+          eb list --region $AWS_REGION --debug || exit 1
 
           #Deploy to Elastic Beanstalk and capture any errors
           eb deploy --debug || exit 1
