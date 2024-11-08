@@ -57,39 +57,49 @@ jobs:
         with:
           name: app.war
           path: App/target/*.war
-
-  deploy:
-    needs: build-and-test
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-
-    steps:
-      # Step 1: Checkout code
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      # Step 2: Set up Java environment
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
-          java-version: '11'
-          distribution: 'temurin'
-
-      # Step 3: Deploy to AWS Elastic Beanstalk
-      - name: Deploy to AWS Elastic Beanstalk
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: 'us-west-2'
-        run: |
-          # Ensure the Elastic Beanstalk CLI is installed
-          pip install --upgrade awsebcli
           
-          # Initialize EB CLI and capture output
-          eb init my-app --platform java --region $AWS_REGION --debug || exit 1
+ deploy:
+  needs: build-and-test
+  runs-on: ubuntu-latest
+  if: github.ref == 'refs/heads/main'
 
-          # Debug: list environments
-          eb list --region $AWS_REGION --debug || exit 1
+  steps:
+    # Step 1: Checkout code
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-          #Deploy to Elastic Beanstalk and capture any errors
-          eb deploy --debug || exit 1
+    # Step 2: Set up Java environment
+    - name: Set up JDK
+      uses: actions/setup-java@v4
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+
+    # Step 3: Ensure EB CLI is installed
+    - name: Ensure EB CLI is installed
+      run: |
+        pip install --upgrade awsebcli
+        eb --version
+
+    # Step 4: Initialize EB CLI
+    - name: Initialize EB CLI
+      run: |
+        eb init my-app --platform java --region $AWS_REGION --debug || exit 1
+
+    # Step 5: List Elastic Beanstalk environments (to confirm the environment exists)
+    - name: List EB environments
+      run: eb list --region $AWS_REGION --debug || exit 1
+
+    # Step 6: Verify WAR file exists
+    - name: Verify WAR file exists
+      run: ls -la ./App/target/*.war || echo "No WAR file found"
+
+    # Step 7: Deploy to AWS Elastic Beanstalk
+    - name: Deploy to AWS Elastic Beanstalk
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: 'us-west-2'
+      run: |
+        # Deploy with debugging enabled
+        eb deploy --debug || exit 1
