@@ -42,7 +42,7 @@ jobs:
 
       # Step 6: Upload the WAR file as an artifact (optional)
       - name: Upload WAR artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: app.war
           path: target/*.war
