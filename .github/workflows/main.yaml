@@ -16,25 +16,23 @@ jobs:
       # Step 1: Checkout the code from the repository
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          submodules: true # If you're using submodules, ensure they are checked out
 
       # Step 2: Debugging - List files in the root directory
       - name: List files in the root directory
         run: ls -la
 
-      # Optional Step: Debugging - List files in the 'app' directory if it exists
+      # Step 3: Debugging - List files in the app directory (if it exists)
       - name: List files in the 'app' directory
-        run: ls -la ./app || echo "No app directory found"
+        run: ls -la ./App || echo "No app directory found"
 
-      # Step 3: Set up Java environment
+      # Step 4: Set up Java environment
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           java-version: '11'
           distribution: 'temurin'
   
-      # Step 4: Cache Maven dependencies
+      # Step 5: Cache Maven dependencies
       - name: Cache Maven packages
         uses: actions/cache@v3
         with:
@@ -43,23 +41,22 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # Step 5: Build and test the application
+      # Step 6: Build and test the application
       - name: Build and test with Maven
         run: mvn clean verify
-        # Commented out the working-directory to use the root folder
-        # working-directory: ./app
+        working-directory: ./App # Adjust this if your pom.xml is in a different directory
 
-      # Step 6: Package application into a WAR file
+      # Step 7: Package application into a WAR file
       - name: Package application
         run: mvn package -DskipTests
-        # working-directory: ./app
+        working-directory: ./App # Adjust this if your pom.xml is in a different directory
 
-      # Step 7: Upload the WAR file as an artifact (optional)
+      # Step 8: Upload the WAR file as an artifact (optional)
       - name: Upload WAR artifact
         uses: actions/upload-artifact@v3
         with:
           name: app.war
-          path: target/*.war
+          path: App/target/*.war
 
   deploy:
     needs: build-and-test
