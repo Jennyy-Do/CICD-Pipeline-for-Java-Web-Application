@@ -75,21 +75,30 @@ jobs:
           java-version: '11'
           distribution: 'temurin'
 
-      # Step 3: Deploy to AWS Elastic Beanstalk
+      # Step 3: Ensure EB CLI is installed 
+      - name: Ensure EB CLI is installed
+        run: |
+          pip install --upgrade awsebcli
+          eb --version
+
+      # step 4: Initialize EB CLI with debug output
+      - name: Initialize EB CLI
+        run: |
+          eb init my-app --platform java --region $AWS_REGION --debug || { echo "EB list failed" ; exit 1; }
+
+      # Step 5: List Elastic BeanStalk environments to confirm existence
+      - name: List EB environments
+        run: eb list --region $AWS_REGION --debug || { echo "EB list failed" ; exit 1; }
+
+      # Step 6: Verify WAR file exists
+      - name: Verify WAR files exists
+        run: ls -la ./App/target/.war || echo " No WAR file found"
+
+      # Step 7: Deploy to AWS Elastic Beanstalk
       - name: Deploy to AWS Elastic Beanstalk
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: 'us-west-2'
         run: |
-          # Ensure the Elastic Beanstalk CLI is installed
-          pip install --upgrade awsebcli
-          
-          # Initialize EB CLI and capture output
-          eb init my-app --platform java --region $AWS_REGION || exit 1
-
-          #Debug: list environments
-          eb list --region $AWS_REGION
-
-          #Deploy to Elastic Beanstalk and capture any errors
-          eb deploy || exit 1
+          eb deploy --debug || { echo "EB deploy failed"; exit 1; }
