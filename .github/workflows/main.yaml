@@ -92,11 +92,6 @@ jobs:
       - name: Initialize EB CLI
         run: |
           eb init my-app --platform java --region us-west-2 --debug || { echo "EB init failed" ; exit 1; }
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: 'us-west-2'
-
       # Step 6: List Elastic BeanStalk environments 
       - name: List EB environments
         run: |
@@ -109,9 +104,5 @@ jobs:
 
       # Step 8: Deploy to AWS Elastic Beanstalk
       - name: Deploy to AWS Elastic Beanstalk
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: 'us-west-2'
         run: |
           eb deploy --debug || { echo "EB deploy failed"; exit 1; }
