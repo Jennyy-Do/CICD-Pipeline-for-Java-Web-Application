@@ -72,6 +72,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '11'
+          distribution: 'temurin'
 
       # Step 3: Ensure AWS CLI is installed
       # This installs the AWS CLI if it’s not already available in the runner environment
