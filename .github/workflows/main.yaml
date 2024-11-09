@@ -78,29 +78,35 @@ jobs:
       # Step 3: Ensure EB CLI is installed 
       - name: Ensure EB CLI is installed
         run: |
+          pip install --upgrade awscli
           pip install --upgrade awsebcli
+          aws --version
           eb --version
 
       # Step 4: Configure AWS CLI with Credentials
       - name: Configure AWS CLI
         run: |
+          echo "Configuring AWS CLI"
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws configure set region us-west-2
+          aws sts get-caller-identity
+
+      #5 Step 5: Check target directory for WAR file 
+      - name: Check target directory for WAR file 
+        run: |
+          echo "Checking for WAR file"
+          ls -la ./target || { echo "Target directory not found or empty"; exit 1 }
+          ls -la ./target/*.war || ( echo "WAR file not found"; exit 1; }
         
-      # step 5: Initialize EB CLI with debug output
+      # step 6: Initialize EB CLI with debug output
       - name: Initialize EB CLI
         run: |
           eb init my-app --platform java --region us-west-2 --debug || { echo "EB init failed" ; exit 1; }
-      # Step 6: List Elastic BeanStalk environments 
+      # Step 7: List Elastic BeanStalk environments 
       - name: List EB environments
         run: |
           eb list --region us-west-2 --debug || { echo "EB list failed" ; exit 1; }
-
-      # Step 7: Verify WAR file exists
-      - name: Verify WAR files exists
-        run: |
-          ls -la ./App/target/*.war || echo " No WAR file found"
 
       # Step 8: Deploy to AWS Elastic Beanstalk
       - name: Deploy to AWS Elastic Beanstalk
